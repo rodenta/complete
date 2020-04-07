@@ -110,7 +110,7 @@ public class CustomerController {
     
     // Create DELETE method that deletes customer by id
     
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<HttpStatus> deleteById(@PathVariable("id") Long id) {
     	try {
     		customerMapper.entityToDto(customerService.deleteById(id));
@@ -122,6 +122,15 @@ public class CustomerController {
     
     // Create DELETE method that deletes customer by any other key
     
+    @DeleteMapping("/deleteByFirstName/{first-name}")
+    public ResponseEntity<HttpStatus> deleteByFirstName(@PathVariable("first-name") String firstName) {
+    	try {
+    		customerMapper.entityToDto(customerService.deleteByFirstName(firstName));
+    		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    	} catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+        }
+    }
     
 
 }

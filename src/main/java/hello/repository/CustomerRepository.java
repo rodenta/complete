@@ -17,5 +17,7 @@ public interface CustomerRepository extends Repository<Customer, Long> {
 	List<Customer> findByLastName(String lastname);
 	Customer save(Customer customer);
 	Customer update(Long id, Customer customer);
-	Customer delete(Long id);
+	Customer deleteById(Long id);
+	Customer deleteByFirstName(String firstName);
+	Customer deleteByLastName(String lastName);
 }

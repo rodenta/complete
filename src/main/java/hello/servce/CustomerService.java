@@ -56,7 +56,26 @@ public class CustomerService {
     }
     
     public Customer deleteById (Long id) {
-    	return customerRepository.delete(id);
+    	if (customerRepository.findById(id) != null) {
+    		return customerRepository.deleteById(id);
+    	} else {
+    		throw new IllegalArgumentException("Customer not found, id: " + id); 
+    	}
     }
     
+    public Customer deleteByFirstName (String firstName) {
+    	if (customerRepository.findByFirstName(firstName) != null) {
+    		return customerRepository.deleteByFirstName(firstName);
+    	} else {
+    		throw new IllegalArgumentException("Customer " + firstName + " not found.");
+    	}
+    }
+    
+    public Customer deleteByLastName (String lastName) {
+    	if (customerRepository.findByFirstName(lastName) != null) {
+    		return customerRepository.deleteByFirstName(lastName);
+    	} else {
+    		throw new IllegalArgumentException("Customer " + lastName + " not found.");
+    	}
+    }
 }
