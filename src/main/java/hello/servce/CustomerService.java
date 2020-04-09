@@ -1,10 +1,13 @@
 package hello.servce;
 
 import hello.model.Customer;
+import hello.exception.CustomerNotCreatedException;
 import hello.exception.CustomerNotFoundException;
 import hello.mapper.CustomerMapper;
 import hello.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +21,7 @@ public class CustomerService {
 	@Autowired
 	CustomerRepository customerRepository;
 
-	// TODO: Implement methods for each controller method. Note that each of them
+	// Implement methods for each controller method. Note that each of them
 	// has to call different method from Service.
 
 	public List<Customer> getAllCustomers() {
@@ -43,39 +46,47 @@ public class CustomerService {
 		customerRepository.findByLastName(lastName).forEach(result::add);
 		return result;
 	}
-/*
-	public Customer addCustomer(Customer customer) {
-		return customerRepository.save(customer);
-	}
 
-	public Customer updateCustomer(Long id, Customer customer) {
-
-		customerRepository.deleteById(id);
-		return customerRepository.save(customer);
-	}
-
-	public Customer deleteById(Long id) {
-		if (customerRepository.findById(id) != null) {
-			return customerRepository.deleteById(id);
+	public Customer createCustomer(Customer customer) throws CustomerNotCreatedException{
+		if (customer.getId() == null) {
+			return customerRepository.save(customer);
 		} else {
-			throw new IllegalArgumentException("Customer not found, id: " + id);
+			throw new CustomerNotCreatedException("");
+		}		
+	}
+
+	public Customer updateCustomer(Customer customer) throws CustomerNotFoundException{
+		if (customerRepository.existsById(customer.getId())) {
+			return customerRepository.save(customer);
+		} else {
+			throw new CustomerNotFoundException("Customer id:" + customer.getId());
 		}
 	}
 
-	public Customer deleteByFirstName(String firstName) {
-		if (customerRepository.findByFirstName(firstName) != null) {
-			return customerRepository.deleteByFirstName(firstName);
+	public void deleteById(Long id) throws CustomerNotFoundException {
+		if (customerRepository.existsById(id)) {
+			customerRepository.deleteById(id);
 		} else {
-			throw new IllegalArgumentException("Customer " + firstName + " not found.");
+			throw new CustomerNotFoundException("Customer id:" + id);
 		}
 	}
 
-	public Customer deleteByLastName(String lastName) {
-		if (customerRepository.findByFirstName(lastName) != null) {
-			return customerRepository.deleteByFirstName(lastName);
+	public void deleteByFirstName(String firstName) throws CustomerNotFoundException{
+		List <Customer> customers = findByFirstName(firstName);
+		if(!customers.isEmpty()) {
+			customerRepository.deleteAll(customers);
 		} else {
-			throw new IllegalArgumentException("Customer " + lastName + " not found.");
+			throw new CustomerNotFoundException("Customer :" + firstName);
+		}		
+	}
+
+	public void deleteByLastName(String lastName) throws CustomerNotFoundException{
+		List <Customer> customers = findByLastName(lastName);
+		if(!customers.isEmpty()) {
+			customerRepository.deleteAll(customers);
+		} else {
+			throw new CustomerNotFoundException("Customer :" + lastName);
 		}
 	}
-*/
+
 }

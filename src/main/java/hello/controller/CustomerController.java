@@ -1,6 +1,7 @@
 package hello.controller;
 
 import hello.dto.CustomerDto;
+import hello.exception.CustomerNotCreatedException;
 import hello.exception.CustomerNotFoundException;
 import hello.mapper.CustomerMapper;
 import hello.model.Customer;
@@ -48,7 +49,7 @@ public class CustomerController {
 	public ResponseEntity<List<CustomerDto>> getAllCustomers() {
 		List<Customer> customers = customerService.getAllCustomers();
 		if (!customers.isEmpty()) {
-			return new ResponseEntity<>(customerMapper.entityListToDto(customers), HttpStatus.OK);
+			return new ResponseEntity<>(customerMapper.entityListToDto(customers), HttpStatus.ACCEPTED);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
@@ -58,7 +59,7 @@ public class CustomerController {
 	@GetMapping("/customers/{id}")
 	public ResponseEntity<CustomerDto> findById(@PathVariable("id") Long id) {
 		try {
-			return new ResponseEntity<>(customerMapper.entityToDto(customerService.findById(id)), HttpStatus.OK);
+			return new ResponseEntity<>(customerMapper.entityToDto(customerService.findById(id)), HttpStatus.ACCEPTED);
 		} catch (CustomerNotFoundException e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -70,7 +71,7 @@ public class CustomerController {
 	public ResponseEntity<List<CustomerDto>> findByFirstName(@PathVariable("first-name") String firstName) {
 		List<Customer> customers = customerService.findByFirstName(firstName);
 		if (!customers.isEmpty()) {
-			return new ResponseEntity<>(customerMapper.entityListToDto(customers), HttpStatus.OK);
+			return new ResponseEntity<>(customerMapper.entityListToDto(customers), HttpStatus.ACCEPTED);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -80,61 +81,70 @@ public class CustomerController {
 	public ResponseEntity<List<CustomerDto>> findByLastName(@PathVariable("last-name") String lastName) {
 		List<Customer> customers = customerService.findByLastName(lastName);
 		if (!customers.isEmpty()) {
-			return new ResponseEntity<>(customerMapper.entityListToDto(customers), HttpStatus.OK);
+			return new ResponseEntity<>(customerMapper.entityListToDto(customers), HttpStatus.ACCEPTED);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
 
-/*	// Create POST method to saves new customer
+	// Create POST method to saves new customer
 
-	@PostMapping("/")
-	public ResponseEntity<CustomerDto> createCustomer(@RequestBody CustomerDto customerDto) {
+	@PostMapping("/customers")
+	public ResponseEntity<HttpStatus> createCustomer(@RequestBody CustomerDto customerDto) {
 		try {
-			Customer cust = customerService
-					.addCustomer(new Customer(customerDto.getFirstName(), customerDto.getLastName()));
-			return new ResponseEntity<>(customerMapper.entityToDto(cust), HttpStatus.CREATED);
-		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
+			customerService.createCustomer(customerMapper.dtoToEntity(customerDto));
+			return new ResponseEntity<>(HttpStatus.ACCEPTED);
+		} catch (CustomerNotCreatedException e) {
+			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
 		}
 	}
 
 	// Create PUT method to update existing customer. Note! If user tries to update
 	// not existing customer, throw an exception
 
-	@PutMapping("/")
-	public ResponseEntity<CustomerDto> putCustomer(@RequestBody CustomerDto customerDto) throws Exception {
-		Customer cust = customerService.findById(customerDto.getId());
-		if (cust != null) {
-			CustomerDto custDto = customerMapper.entityToDto(customerService.updateCustomer(cust.getId(), cust));
-			return new ResponseEntity<>(custDto, HttpStatus.OK);
-		} else {
-			throw new Exception("Customer doesn't exist.");
+	@PutMapping("/customers")
+	public ResponseEntity<HttpStatus> putCustomer(@RequestBody CustomerDto customerDto) { 
+		try {
+			Customer customer = customerMapper.dtoToEntity(customerDto);
+			customerService.updateCustomer(customer);
+			return new ResponseEntity<>(HttpStatus.ACCEPTED);
+		} catch (CustomerNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-	}
+	}	
 
 	// Create DELETE method that deletes customer by id
 
-	@DeleteMapping("/delete/{id}")
+	@DeleteMapping("/customers/{id}")
 	public ResponseEntity<HttpStatus> deleteById(@PathVariable("id") Long id) {
 		try {
-			customerMapper.entityToDto(customerService.deleteById(id));
+			customerService.deleteById(id);
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+		} catch (CustomerNotFoundException e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
 
 	// Create DELETE method that deletes customer by any other key
 
-	@DeleteMapping("/deleteByFirstName/{first-name}")
+	@DeleteMapping("/customers/deleteByFirstName/{first-name}")
 	public ResponseEntity<HttpStatus> deleteByFirstName(@PathVariable("first-name") String firstName) {
 		try {
-			customerMapper.entityToDto(customerService.deleteByFirstName(firstName));
+			customerService.deleteByFirstName(firstName);
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+			} catch (CustomerNotFoundException e) {
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
-*/
+	
+	@DeleteMapping("/customers/deleteByLastName/{last-name}")
+	public ResponseEntity<HttpStatus> deleteByLastName(@PathVariable("last-name") String lastName) {
+		try {
+			customerService.deleteByLastName(lastName);
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			} catch (CustomerNotFoundException e) {
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+
 }

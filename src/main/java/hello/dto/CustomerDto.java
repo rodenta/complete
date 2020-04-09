@@ -2,7 +2,7 @@ package hello.dto;
 
 public class CustomerDto {
 
-	// TODO: Fill with data corresponding to Customer entity
+	//  Fill with data corresponding to Customer entity
 	private Long id;
 	private String firstName;
 	private String lastName;
